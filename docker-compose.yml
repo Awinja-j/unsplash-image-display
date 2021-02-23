@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    command: /bin/sh -c ("python website/manage.py makemigrations && python website/manage.py migrate && python website/manage.py load_data &&python website/manage.py runserver 0.0.0.0:8000")
+    environment:
+      - DEBUG=1
+    image: unsplash_photos_display
+    ports:
+      - "8000:8000"
+    depends_on: 
+      - db
+    restart: on-failure
+    volumes:
+      - ./:/display_website
+
+  db:
+    build: ./database/
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - /var/lib/postgresql/data
+    
+
+  adminer:
+    image: adminer:4.7.7-standalone
+    restart: always
+    ports:
+      - 8080:8080
+
+
